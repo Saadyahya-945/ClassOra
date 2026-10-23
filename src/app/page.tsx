@@ -1,69 +1,166 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useEffect } from 'react';
+import Link from 'next/link';
+import {
+  ShieldCheck,
+  Zap,
+  ArrowRight,
+  Sparkles,
+  FileSpreadsheet,
+  WifiOff,
+  UserCheck,
+  GraduationCap,
+} from 'lucide-react';
+import { seedDemoDataIfEmpty } from '@/lib/mockData';
+
+export default function LandingPage() {
+  useEffect(() => {
+    seedDemoDataIfEmpty();
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col selection:bg-[#0F172A] selection:text-white overflow-x-hidden">
+      {/* Top Navigation */}
+      <nav className="border-b-2 border-[#0F172A] bg-white sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 bg-[#0F172A] flex items-center justify-center text-white font-black font-display text-lg shrink-0 border border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+              C
+            </div>
+            <div className="flex items-center gap-2 truncate">
+              <span className="font-display font-black text-xl tracking-tight text-[#0F172A]">ClassOra</span>
+              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 bg-slate-100 text-[#0F172A] font-bold border border-[#0F172A]">
+                LECTRA LEDGER
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs shrink-0">
+            <Link
+              href="/professor"
+              className="px-3 sm:px-4 py-2 border-2 border-[#0F172A] text-[#0F172A] bg-white hover:bg-[#0F172A] hover:text-white transition-all font-bold shadow-[2px_2px_0px_#0F172A] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 text-center"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Professor Cabin
+            </Link>
+            <Link
+              href="/student"
+              className="px-3 sm:px-4 py-2 border-2 border-[#0F172A] bg-[#0F172A] text-white hover:bg-[#1E3A8A] transition-all font-bold shadow-[2px_2px_0px_#0F172A] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 text-center flex items-center gap-1"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <span>Student Wallet</span>
+              <span className="hidden xs:inline">→</span>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-16 flex flex-col justify-center">
+        <div className="text-center max-w-3xl mx-auto space-y-5 sm:space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border-2 border-[#0F172A] text-[#0F172A] text-xs font-mono font-bold shadow-[2px_2px_0px_#0F172A]">
+            <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span className="truncate">Dual-Personality Academic Operating System</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black font-display tracking-tight text-[#0F172A] leading-tight break-words">
+            Classroom Dead-Zones,{' '}
+            <span className="text-blue-600 underline decoration-4 decoration-[#0F172A]">
+              Conquered.
+            </span>
+          </h1>
+
+          <p className="text-sm sm:text-base md:text-lg text-[#475569] leading-relaxed font-sans max-w-2xl mx-auto px-2">
+            A zero-clutter <strong>Swiss Ledger</strong> that takes attendance in under 45 seconds for veteran professors, paired with an <strong>Academic Fintech Wallet</strong> and 75% Attendance Radar for students.
+          </p>
+
+          {/* Dual Entry Cards with Unified Box Theme */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 text-left w-full max-w-4xl mx-auto">
+            {/* Professor Workspace Card */}
+            <Link
+              href="/professor"
+              className="group p-5 sm:p-6 bg-white border-2 border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex flex-col justify-between min-w-0"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4 gap-2">
+                  <span className="px-2.5 py-1 bg-slate-100 text-slate-900 font-mono text-xs font-bold uppercase border border-slate-300 shrink-0">
+                    Faculty Portal
+                  </span>
+                  <UserCheck className="w-6 h-6 text-[#0F172A] shrink-0" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold font-display text-[#0F172A] mb-2 group-hover:text-blue-700 transition-colors break-words">
+                  Professor Workspace →
+                </h3>
+                <p className="text-xs text-[#475569] font-mono leading-relaxed mb-4 break-words">
+                  Podium 60-second quick roll call, Cabin spreadsheet with frozen columns, bulk date-range medical leaves, automated Best-of-N sessional math, and 1-click HOD exports.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs font-mono font-bold text-[#0F172A]">
+                <span>Open Swiss Ledger</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </Link>
+
+            {/* Student Workspace Card - UNIFIED TO MATCH THE SAME SWISS BOX THEME */}
+            <Link
+              href="/student"
+              className="group p-5 sm:p-6 bg-white border-2 border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex flex-col justify-between min-w-0"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4 gap-2">
+                  <span className="px-2.5 py-1 bg-blue-50 text-blue-900 font-mono text-xs font-bold uppercase border border-blue-300 shrink-0">
+                    Student Portal
+                  </span>
+                  <GraduationCap className="w-6 h-6 text-blue-600 shrink-0" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold font-display text-[#0F172A] mb-2 group-hover:text-blue-700 transition-colors break-words">
+                  Student Academic Wallet →
+                </h3>
+                <p className="text-xs text-[#475569] font-mono leading-relaxed mb-4 break-words">
+                  Live 75% Attendance Radar with glowing progress rings, tactile &quot;What-If&quot; attendance simulator, published sessional marks breakdown, and 1-click correction dispute tickets.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs font-mono font-bold text-[#0F172A]">
+                <span>Open Student Wallet (Demo: Rahul #14)</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Feature Badges Grid - Unified Sharp Boxes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-12 sm:mt-16 pt-8 border-t-2 border-[#0F172A] font-mono text-xs w-full">
+          <div className="p-4 bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] min-w-0">
+            <Zap className="w-5 h-5 text-amber-500 mb-2" />
+            <div className="font-bold text-[#0F172A] break-words">45-Second Attendance</div>
+            <p className="text-[11px] text-[#64748B] mt-1 break-words">Numpad roll call &amp; Mark All Present defaults.</p>
+          </div>
+
+          <div className="p-4 bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] min-w-0">
+            <WifiOff className="w-5 h-5 text-blue-600 mb-2" />
+            <div className="font-bold text-[#0F172A] break-words">Dead-Zone Safe</div>
+            <p className="text-[11px] text-[#64748B] mt-1 break-words">Dexie.js IndexedDB local-first cache with auto-retry sync.</p>
+          </div>
+
+          <div className="p-4 bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] min-w-0">
+            <FileSpreadsheet className="w-5 h-5 text-emerald-600 mb-2" />
+            <div className="font-bold text-[#0F172A] break-words">HOD One-Click Export</div>
+            <p className="text-[11px] text-[#64748B] mt-1 break-words">Formatted Excel .xlsx and official PDF with signature lines.</p>
+          </div>
+
+          <div className="p-4 bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] min-w-0">
+            <ShieldCheck className="w-5 h-5 text-indigo-600 mb-2" />
+            <div className="font-bold text-[#0F172A] break-words">Audit-Proof Security</div>
+            <p className="text-[11px] text-[#64748B] mt-1 break-words">Immutable correction history &amp; medical leave tracking.</p>
+          </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t-2 border-[#0F172A] bg-white py-6 text-center text-xs font-mono text-[#64748B] px-4">
+        <span>ClassOra / Lectra Ledger — Arman Ahmad &amp; Yahya | Version 1.0</span>
+      </footer>
     </div>
   );
 }
