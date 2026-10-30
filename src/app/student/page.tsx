@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db/dexie';
 import { seedDemoDataIfEmpty } from '@/lib/mockData';
@@ -21,10 +21,14 @@ import { ShortageBufferBanner } from '@/components/student/ShortageBufferBanner'
 import { WhatIfSimulator } from '@/components/student/WhatIfSimulator';
 import { BentoMarksWallet } from '@/components/student/BentoMarksWallet';
 import { LectureTimeline } from '@/components/student/LectureTimeline';
-import { ArrowLeft, BookOpen, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
+import { AuthGate } from '@/components/shared/AuthGate';
+import { CourseAccessPanel } from '@/components/shared/CourseAccessPanel';
+import { AppUser } from '@/lib/auth';
 
-export default function StudentPage() {
+function StudentDashboard({ user }: { user: AppUser }) {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [studentEnrollments, setStudentEnrollments] = useState<Enrollment[]>([]);
   const [activeCourseId, setActiveCourseId] = useState<string>('');
   const [currentStudent, setCurrentStudent] = useState<Enrollment | null>(null);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
@@ -33,18 +37,23 @@ export default function StudentPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [scores, setScores] = useState<AssessmentScore[]>([]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async (requestedCourseId?: string) => {
     await seedDemoDataIfEmpty();
 
     const loadedCourses = await db.courses.toArray();
     setCourses(loadedCourses);
 
-    const activeCourse = loadedCourses[0];
+    const allEnrollments = await db.enrollments.toArray();
+    const userEnrollments = allEnrollments.filter((enrollment) => enrollment.student_user_id === user.id);
+    setStudentEnrollments(userEnrollments);
+    const activeCourse = loadedCourses.find((course) => course.id === requestedCourseId) || loadedCourses.find((course) =>
+      userEnrollments.some((enrollment) => enrollment.course_id === course.id)
+    );
     if (activeCourse) {
       setActiveCourseId(activeCourse.id);
 
-      const enrolls = await db.enrollments.where('course_id').equals(activeCourse.id).toArray();
-      const student = enrolls.find((e) => e.roll_number === '14') || enrolls[0];
+      const enrolls = userEnrollments.filter((enrollment) => enrollment.course_id === activeCourse.id);
+      const student = enrolls[0];
       setCurrentStudent(student);
 
       const sess = await db.attendance_sessions.where('course_id').equals(activeCourse.id).toArray();
@@ -61,12 +70,27 @@ export default function StudentPage() {
 
       const scs = await db.assessment_scores.toArray();
       setScores(scs);
+    } else {
+      setActiveCourseId('');
+      setCurrentStudent(null);
+      setSessions([]);
+      setRecords([]);
+      setGroups([]);
+      setAssessments([]);
+      setScores([]);
     }
+  }, [user.id]);
+
+  const handleSelectCourse = async (courseId: string) => {
+    await loadData(courseId);
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    const timer = window.setTimeout(() => {
+      void loadData();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadData]);
 
   const activeCourse = courses.find((c) => c.id === activeCourseId) || courses[0];
 
@@ -97,8 +121,18 @@ export default function StudentPage() {
 
   if (!currentStudent) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex items-center justify-center font-mono text-sm">
-        Loading Student Academic Wallet...
+      <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] p-4 sm:p-6">
+        <div className="max-w-4xl mx-auto space-y-4">
+          <CourseAccessPanel
+            user={user}
+            courses={courses}
+            enrollments={studentEnrollments}
+            onChanged={loadData}
+            selectedCourseId={activeCourseId}
+            onSelectCourse={handleSelectCourse}
+          />
+          <p className="font-mono text-sm text-[#64748B]">Enroll in a class to open your Academic Wallet.</p>
+        </div>
       </div>
     );
   }
@@ -150,6 +184,14 @@ export default function StudentPage() {
 
       {/* Main Student Container */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        <CourseAccessPanel
+          user={user}
+          courses={courses}
+          enrollments={studentEnrollments}
+          onChanged={loadData}
+          selectedCourseId={activeCourseId}
+          onSelectCourse={handleSelectCourse}
+        />
         {/* Module 8.1: Hero 75% Attendance Radar */}
         <AnimatedRadarRing
           percentage={attendanceMetrics.percentage}
@@ -196,5 +238,13 @@ export default function StudentPage() {
         <span>Verified Google Account Sync • ClassOra v1.0</span>
       </footer>
     </div>
+  );
+}
+
+export default function StudentPage() {
+  return (
+    <AuthGate role="student">
+      {(user) => <StudentDashboard user={user} />}
+    </AuthGate>
   );
 }

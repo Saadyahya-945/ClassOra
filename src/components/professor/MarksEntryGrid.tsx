@@ -56,7 +56,10 @@ export function MarksEntryGrid({
   const [editAsmTitle, setEditAsmTitle] = useState('');
   const [editAsmMax, setEditAsmMax] = useState(10);
 
-  const activeGroup = groups.find((g) => g.id === activeGroupId) || groups[0];
+  const effectiveActiveGroupId = groups.some((group) => group.id === activeGroupId)
+    ? activeGroupId
+    : groups[0]?.id || '';
+  const activeGroup = groups.find((g) => g.id === effectiveActiveGroupId) || groups[0];
   const groupAssessments = assessments.filter((a) => a.group_id === activeGroup?.id);
 
   // Fast score lookup map
@@ -67,6 +70,14 @@ export function MarksEntryGrid({
     });
     return map;
   }, [scores]);
+
+  if (!activeGroup) {
+    return (
+      <div className="bg-white border-2 border-[#0F172A] p-6 font-mono text-sm">
+        No assessment section is available for this class yet.
+      </div>
+    );
+  }
 
   const openSectionConfig = () => {
     if (!activeGroup) return;
@@ -177,14 +188,14 @@ export function MarksEntryGrid({
                 key={g.id}
                 onClick={() => setActiveGroupId(g.id)}
                 className={`px-3 py-1.5 font-bold border-2 transition-all flex items-center gap-1.5 ${
-                  activeGroupId === g.id
+                  effectiveActiveGroupId === g.id
                     ? 'bg-[#0F172A] text-white border-[#0F172A] shadow-[2px_2px_0px_#0F172A]'
                     : 'bg-white text-[#475569] border-[#CBD5E1] hover:border-[#0F172A]'
                 }`}
               >
                 <span>{g.group_name}</span>
                 <span className={`text-[10px] px-1 py-0.2 rounded-xs font-mono ${
-                  activeGroupId === g.id ? 'bg-slate-800 text-blue-300' : 'bg-slate-100 text-slate-600'
+                  effectiveActiveGroupId === g.id ? 'bg-slate-800 text-blue-300' : 'bg-slate-100 text-slate-600'
                 }`}>
                   {ruleLabel} (/ {g.max_group_weight})
                 </span>
@@ -663,7 +674,7 @@ export function MarksEntryGrid({
                 type="button"
                 onClick={() => {
                   if (newTitle.trim()) {
-                    onCreateAssessment(activeGroupId, newTitle.trim(), newMaxMarks);
+                    onCreateAssessment(effectiveActiveGroupId, newTitle.trim(), newMaxMarks);
                     setNewTitle('');
                     setIsCreatingAssessment(false);
                   }

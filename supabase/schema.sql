@@ -161,6 +161,12 @@ ALTER TABLE public.assessment_scores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.correction_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
+-- Profiles: users can read only their own trusted role record.
+CREATE POLICY "Users can view their own profile"
+  ON public.profiles FOR SELECT
+  TO authenticated
+  USING (id = (SELECT auth.uid()));
+
 -- Courses: Professor full CRUD, Students can view courses they are enrolled in
 CREATE POLICY "Professors can manage their own courses"
   ON public.courses FOR ALL
@@ -176,6 +182,42 @@ CREATE POLICY "Students can view enrolled courses"
       SELECT 1 FROM public.enrollments e
       WHERE e.course_id = courses.id
       AND e.student_user_id = auth.uid()
+    )
+  );
+
+-- Enrollments: professors manage their course rosters; students manage only themselves.
+CREATE POLICY "Professors can manage their course enrollments"
+  ON public.enrollments FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.courses c
+      WHERE c.id = enrollments.course_id
+      AND c.professor_id = (SELECT auth.uid())
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.courses c
+      WHERE c.id = enrollments.course_id
+      AND c.professor_id = (SELECT auth.uid())
+    )
+  );
+
+CREATE POLICY "Students can view their own enrollments"
+  ON public.enrollments FOR SELECT
+  TO authenticated
+  USING (student_user_id = (SELECT auth.uid()));
+
+CREATE POLICY "Students can create their own enrollments"
+  ON public.enrollments FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    student_user_id = (SELECT auth.uid())
+    AND EXISTS (
+      SELECT 1 FROM public.courses c
+      WHERE c.id = enrollments.course_id
+      AND c.is_archived = FALSE
     )
   );
 

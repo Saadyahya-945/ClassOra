@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db/dexie';
 import { seedDemoDataIfEmpty } from '@/lib/mockData';
@@ -25,6 +25,9 @@ import { BulkLeaveDrawer } from '@/components/professor/BulkLeaveDrawer';
 import { RosterImportModal } from '@/components/professor/RosterImportModal';
 import { DisputeResolutionDrawer } from '@/components/professor/DisputeResolutionDrawer';
 import { SyncStatusBanner, SyncPill } from '@/components/shared/SyncStatusBanner';
+import { AuthGate } from '@/components/shared/AuthGate';
+import { CourseAccessPanel } from '@/components/shared/CourseAccessPanel';
+import { AppUser } from '@/lib/auth';
 import { generateHODExcel, generateHODPDF } from '@/lib/export/exportEngine';
 import {
   Bell,
@@ -37,7 +40,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 
-export default function ProfessorPage() {
+function ProfessorDashboard({ user }: { user: AppUser }) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [activeCourseId, setActiveCourseId] = useState<string>('');
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
@@ -56,13 +59,15 @@ export default function ProfessorPage() {
   const [isRosterImportOpen, setIsRosterImportOpen] = useState(false);
   const [isDisputesOpen, setIsDisputesOpen] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async (requestedCourseId?: string) => {
     await seedDemoDataIfEmpty();
 
-    const loadedCourses = await db.courses.toArray();
+    const loadedCourses = (await db.courses.toArray()).filter(
+      (course) => course.professor_id === user.id && !course.is_archived
+    );
     setCourses(loadedCourses);
 
-    const activeCourse = loadedCourses[0];
+    const activeCourse = loadedCourses.find((course) => course.id === requestedCourseId) || loadedCourses[0];
     if (activeCourse) {
       setActiveCourseId(activeCourse.id);
       const enrs = await db.enrollments.where('course_id').equals(activeCourse.id).toArray();
@@ -77,7 +82,24 @@ export default function ProfessorPage() {
       const recs = await db.attendance_records.toArray();
       setRecords(recs);
 
-      const grps = await db.assessment_groups.where('course_id').equals(activeCourse.id).toArray();
+      let grps = await db.assessment_groups.where('course_id').equals(activeCourse.id).toArray();
+      if (grps.length === 0) {
+        const defaultGroup: AssessmentGroup = {
+          id: `grp_${activeCourse.id}_default`,
+          course_id: activeCourse.id,
+          group_name: 'Assessments',
+          rule_type: 'sum',
+          best_k_count: 2,
+          max_group_weight: 20,
+        };
+        await db.assessment_groups.add(defaultGroup);
+        await syncEngine.queueMutation(
+          'assessment_groups',
+          'upsert',
+          defaultGroup as unknown as Record<string, unknown>
+        );
+        grps = [defaultGroup];
+      }
       setGroups(grps);
 
       const asms = await db.assessments.where('course_id').equals(activeCourse.id).toArray();
@@ -89,11 +111,18 @@ export default function ProfessorPage() {
       const disps = await db.correction_requests.where('course_id').equals(activeCourse.id).toArray();
       setDisputes(disps);
     }
+  }, [user.id]);
+
+  const handleSelectCourse = async (courseId: string) => {
+    await loadData(courseId);
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    const timer = window.setTimeout(() => {
+      void loadData();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadData]);
 
   const activeCourse = courses.find((c) => c.id === activeCourseId) || courses[0];
 
@@ -483,6 +512,14 @@ export default function ProfessorPage() {
 
       {/* Workspace Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-4 min-w-0">
+        <CourseAccessPanel
+          user={user}
+          courses={courses}
+          enrollments={enrollments}
+          onChanged={loadData}
+          selectedCourseId={activeCourseId}
+          onSelectCourse={handleSelectCourse}
+        />
         {/* Mode Switcher Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#0F172A] pb-3 font-mono text-xs w-full">
           <div className="flex flex-wrap gap-2">
@@ -607,5 +644,13 @@ export default function ProfessorPage() {
         onResolveDispute={handleResolveDispute}
       />
     </div>
+  );
+}
+
+export default function ProfessorPage() {
+  return (
+    <AuthGate role="professor">
+      {(user) => <ProfessorDashboard user={user} />}
+    </AuthGate>
   );
 }

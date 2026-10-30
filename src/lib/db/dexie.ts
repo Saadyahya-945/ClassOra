@@ -48,6 +48,9 @@ export class ClassOraDatabase extends Dexie {
       correction_requests: 'id, course_id, enrollment_id, status',
       syncQueue: '++id, status, client_mutation_id, createdAt',
     });
+    this.version(2).stores({
+      courses: 'id, professor_id, course_code, join_code, is_archived',
+    });
   }
 }
 

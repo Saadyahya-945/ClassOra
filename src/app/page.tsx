@@ -31,25 +31,9 @@ export default function LandingPage() {
             <div className="flex items-center gap-2 truncate">
               <span className="font-display font-black text-xl tracking-tight text-[#0F172A]">ClassOra</span>
               <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 bg-slate-100 text-[#0F172A] font-bold border border-[#0F172A]">
-                LECTRA LEDGER
+                DIGITAL CR
               </span>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs shrink-0">
-            <Link
-              href="/professor"
-              className="px-3 sm:px-4 py-2 border-2 border-[#0F172A] text-[#0F172A] bg-white hover:bg-[#0F172A] hover:text-white transition-all font-bold shadow-[2px_2px_0px_#0F172A] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 text-center"
-            >
-              Professor Cabin
-            </Link>
-            <Link
-              href="/student"
-              className="px-3 sm:px-4 py-2 border-2 border-[#0F172A] bg-[#0F172A] text-white hover:bg-[#1E3A8A] transition-all font-bold shadow-[2px_2px_0px_#0F172A] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 text-center flex items-center gap-1"
-            >
-              <span>Student Wallet</span>
-              <span className="hidden xs:inline">→</span>
-            </Link>
           </div>
         </div>
       </nav>
@@ -96,7 +80,7 @@ export default function LandingPage() {
               </div>
 
               <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs font-mono font-bold text-[#0F172A]">
-                <span>Open Swiss Ledger</span>
+                <span>                Professor Login</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </Link>
@@ -122,7 +106,7 @@ export default function LandingPage() {
               </div>
 
               <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs font-mono font-bold text-[#0F172A]">
-                <span>Open Student Wallet (Demo: Rahul #14)</span>
+                <span>Student Login (Demo: Rahul #14)</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </Link>
@@ -159,7 +143,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t-2 border-[#0F172A] bg-white py-6 text-center text-xs font-mono text-[#64748B] px-4">
-        <span>ClassOra / Lectra Ledger — Arman Ahmad &amp; Yahya | Version 1.0</span>
+        <span>ClassOra — Arman Ahmad &amp; Yahya Kidwai| Version 1.0</span>
       </footer>
     </div>
   );
