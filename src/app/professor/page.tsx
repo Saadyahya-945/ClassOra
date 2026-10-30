@@ -213,6 +213,9 @@ function ProfessorDashboard({ user }: { user: AppUser }) {
     await db.attendance_sessions.add(newSession);
     await db.attendance_records.bulkAdd(initialRecords);
     await syncEngine.queueMutation('attendance_sessions', 'upsert', newSession as unknown as Record<string, unknown>);
+    for (const record of initialRecords) {
+      await syncEngine.queueMutation('attendance_records', 'upsert', record as unknown as Record<string, unknown>);
+    }
   };
 
   const handleApplyLeave = async (

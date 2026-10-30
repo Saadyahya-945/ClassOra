@@ -11,7 +11,7 @@ interface CourseAccessPanelProps {
   user: AppUser;
   courses: Course[];
   enrollments: Enrollment[];
-  onChanged: () => Promise<void>;
+  onChanged: (courseId?: string) => Promise<void>;
   selectedCourseId?: string;
   onSelectCourse?: (courseId: string) => Promise<void>;
 }
@@ -69,7 +69,7 @@ export function CourseAccessPanel({
     setSemester('');
     setJoinCode('');
     setMessage(`Created ${course.course_code}. Share code ${course.join_code} with students.`);
-    await onChanged();
+    await onChanged(course.id);
   };
 
   const enroll = async (event: FormEvent<HTMLFormElement>) => {
@@ -100,7 +100,7 @@ export function CourseAccessPanel({
     await syncEngine.queueMutation('enrollments', 'upsert', enrollment as unknown as Record<string, unknown>);
     setJoinCode('');
     setMessage(`Enrolled in ${course.course_code}.`);
-    await onChanged();
+    await onChanged(course.id);
   };
 
   return (
